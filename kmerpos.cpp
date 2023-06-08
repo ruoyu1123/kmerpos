@@ -22,42 +22,6 @@ mutex m;
 int k_size;          // k-mer len
 unordered_set<uint64_t> kmer;
 
-#if 0
-uthash table
-this hashtable need more memeories to store pair;
-
-typedef struct my_struct {
-    uint64_t key;
-    //char name;
-    UT_hash_handle hh;
-} hash_node;
-
-class hash_set{
-public:
-    hash_node *dict=NULL;
-    void insert(uint64_t *key){
-        hash_node *s;
-        HASH_FIND_INT(dict, key, s);
-        if (s == NULL)
-        {
-            s = (struct my_struct*)malloc(sizeof *s);
-            s->key = *key;
-            HASH_ADD_INT(dict, key, s);
-        }
-    }
-    hash_node *find(uint64_t *key)
-    {
-        hash_node *tmp=NULL;
-        HASH_FIND_INT(dict, key, tmp);
-        return tmp;
-    }
-    int size() {
-        return HASH_COUNT(dict);
-    }
-};
-vector<hash_set> kmer;
-#endif
-
 
 std::unordered_map<char, uint64_t> ctoi = {
 	{'A', 0ull},
@@ -65,27 +29,6 @@ std::unordered_map<char, uint64_t> ctoi = {
 	{'C', 1ull},
 	{'G', 2ull}
 };
-
-/*
-// 读取k-mer为二进制整数
-uint64_t ctoi(char c)
-{
-    switch (c)
-    {
-    case 'A':
-        return 0ull;
-    case 'T':
-        return 3ull;
-    case 'C':
-        return 1ull;
-    case 'G':
-        return 2ull;
-    default:
-        return 4ull;
-    }
-}
-*/
-
 
 
 //
@@ -100,10 +43,6 @@ uint64_t tobin(string* s){
 }
 
 
-// reverse the bin of kmer
-//uint64_t reversebin(uint64_t x){
-//	return;
-//}
 
 int read_kmer(const char *k_path, int k)
 {
@@ -181,7 +120,7 @@ int search_kmer(string line, int t1, string name, FILE *file[], bool mask[], int
         k.is_ukmer(fp);
         base = ctoi[line[i]];
         k.sbin = k.sbin << 2 | base & 0x3ffffffffffull;
-        k.rbin = k.rbin >> 2 | ~base << 40;
+        k.rbin = (k.rbin >> 2) | ((3ull-base) << 40);
     }
     k.is_ukmer(fp);
     m.lock();
